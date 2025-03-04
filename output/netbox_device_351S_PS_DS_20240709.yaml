@@ -1,0 +1,36 @@
+model: SEL-351S
+manufacturer: Schweitzer Engineering Laboratories, Inc.
+part_number:
+- SEL-351S-5
+- SEL-351S-6
+- SEL-351S-7
+u_height: unknown
+power_ports:
+- type: USB Type-B
+  location: front-panel
+- type: EIA-232 DB-9
+  location: front-panel
+- type: EIA-232 DB-9
+  location: rear-panel
+- type: EIA-232 DB-9
+  location: rear-panel
+- type: EIA-485
+  location: rear-panel
+  optional: true
+- type: SEL-2812-compatible fiber-optic
+  location: rear-panel
+  optional: true
+interfaces:
+- type: Ethernet
+  specification: 10/100BASE-T
+  connector: RJ45
+  count: 2
+- type: Ethernet
+  specification: 10/100BASE-FX
+  connector: LC multimode fiber-optic
+  count: 1
+  optional: true
+- type: Ethernet
+  specification: 10/100BASE-T and 10/100BASE-FX
+  connector: RJ45 and LC multimode fiber-optic
+  optional: true

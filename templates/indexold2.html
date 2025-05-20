@@ -127,12 +127,6 @@
       <pre>{{ yaml_output }}</pre>
     </section>
     {% endif %}
-  
-    <div id="hedgehog" style="display:none; text-align:center; margin-top: 2rem;">
-      <img src="/static/dancing-hedgehog.gif" alt="Dancing Hedgehog" style="height: 100px;">
-      <p>Generating YAML...</p>
-    </div>
-
   </main>
 
   <script>
@@ -171,14 +165,6 @@
       const val = document.getElementById("api_key").value;
       sessionStorage.setItem("api_key", val);
     }
-    
-    const form = document.querySelector("form");
-    if (form) {
-      form.addEventListener("submit", function () {
-        document.getElementById("hedgehog").style.display = "block";
-      });
-    }
-
     window.onload = function () {
       const saved = sessionStorage.getItem("api_key");
       if (saved) {

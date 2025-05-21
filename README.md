@@ -245,3 +245,14 @@ Running on http://172.18.0.2:5000
 - Docker maps `0.0.0.0` inside the container to your local `localhost` (127.0.0.1), as long as your `docker-compose.yml` exposes the correct port (`5000:5000`).
 
 You can safely ignore `172.18.x.x` addresses when accessing the app from your browser.
+---
+
+## 🔐 API Key Scope and IP Address Notes
+
+When you enter your OpenAI API key in the browser interface, it is saved in your browser’s `sessionStorage`. This means:
+
+- It is **only available on the specific IP or domain** where you entered it.
+- If you visit the app at `http://127.0.0.1:5000`, then later switch to `http://10.7.216.167:5000`, the API key will not carry over.
+- You will need to re-enter the key for each address (origin) you use.
+
+> ✅ To avoid errors like “OpenAI API key not found,” always use the same address (e.g., `http://127.0.0.1:5000`) throughout your session.

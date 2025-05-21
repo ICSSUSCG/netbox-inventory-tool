@@ -98,9 +98,9 @@
         <button type="button" onclick="toggleAll(true)">Select All</button>
         <button type="button" onclick="toggleAll(false)">Deselect All</button>
       </div>
-      <div id="field-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); column-gap: 1rem; row-gap: 0.5rem;" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 0.25rem; align-items: center;">
+      <div id="field-grid">
         {% for field in available_fields %}
-        <label style="display: flex; align-items: center; gap: 0.5rem;"><input type="checkbox" checked name="fields" value="{{ field }}" onchange="setFields()" style="margin: 0;"> <span>{{ field }}</span></label>
+        <label><input type="checkbox" checked name="fields" value="{{ field }}" onchange="setFields()"> {{ field }}</label>
         {% endfor %}
       </div>
     </section>

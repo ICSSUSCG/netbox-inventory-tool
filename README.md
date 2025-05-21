@@ -1,4 +1,3 @@
-
 # 🧰 NetBox YAML Generator
 
 A Flask-based web application that extracts structured device information from manufacturer spec sheets (PDF or YAML) and generates validated, NetBox-compliant device-type YAML files.
@@ -190,3 +189,59 @@ uploads/
 ```
 
 This keeps the container lightweight and avoids leaking local state or sensitive data.
+---
+
+## 🐳 Docker Installation Instructions
+
+### 🖥 macOS (via Terminal)
+1. Install Homebrew (if not already installed):
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+2. Install Docker Desktop:
+```bash
+brew install --cask docker
+open /Applications/Docker.app
+```
+
+3. Wait for the whale icon in your macOS menu bar to confirm Docker is running.
+
+---
+
+### 🐧 Linux (Ubuntu/Debian)
+1. Install Docker Engine:
+```bash
+sudo apt update
+sudo apt install -y docker.io
+sudo systemctl enable --now docker
+```
+
+2. (Optional) Add your user to the docker group:
+```bash
+sudo usermod -aG docker $USER
+```
+Then log out and back in to apply.
+
+3. Install Docker Compose:
+```bash
+sudo curl -L "https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+```
+
+---
+
+### 🌐 Docker Network Behavior Explained
+
+When you run the app inside Docker, you might see output like:
+
+```bash
+Running on http://127.0.0.1:5000
+Running on http://172.18.0.2:5000
+```
+
+- `127.0.0.1:5000` is the address you should use in your **browser**.
+- `172.18.0.2:5000` is the container’s **internal IP address** on Docker’s bridge network. It's only used for container-to-container communication.
+- Docker maps `0.0.0.0` inside the container to your local `localhost` (127.0.0.1), as long as your `docker-compose.yml` exposes the correct port (`5000:5000`).
+
+You can safely ignore `172.18.x.x` addresses when accessing the app from your browser.

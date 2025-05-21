@@ -1,6 +1,10 @@
 
 import os, re, yaml, fitz
 from flask import Flask, request, render_template, send_file, abort, session
+import importlib.util
+import copy
+
+# Import validation
 from openai import OpenAI
 from zipfile import ZipFile
 from pathlib import Path
@@ -11,8 +15,22 @@ import textwrap
 def fold_comment(text, width=80):
     return '\n'.join(textwrap.wrap(text, width=width))
 
+spec = importlib.util.spec_from_file_location(
+    'validate_config_standalone',
+    os.path.join('scripts', 'validate_config_standalone.py')
+)
+validate_mod = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(validate_mod)
+
 app = Flask(__name__)
 app.secret_key = "secret"
+
+
+def sanitize_filename(name: str) -> str:
+    name = name.lower().replace(" ", "-")
+    name = re.sub(r"[^a-z0-9_-]", "-", name)
+    return name
+
 
 def normalize_slug(value: str) -> str:
     value = value.lower().replace(" ", "-")
@@ -103,6 +121,15 @@ def sanitize_yaml(dev):
                  if isinstance(item, dict) and 'name' not in item:
                          item['name'] = f"{section[:-1].capitalize()} {idx+1}"
             dev[section] = [sanitize_dict(item, allowed_keys) for item in dev[section] if isinstance(item, dict)]
+
+    # Enforce integer maximum_draw
+    for port in dev.get("power-ports", []):
+        if isinstance(port, dict) and "maximum_draw" in port:
+            try:
+                port["maximum_draw"] = int(round(float(port["maximum_draw"])))
+            except Exception:
+                port["maximum_draw"] = 0
+
 
     dev = {k: v for k, v in dev.items() if v not in ("", None, [], {})}
     return dev
@@ -198,12 +225,13 @@ def upload():
                         )
                     ]
             dev_copy = sanitize_yaml(dev_copy)
-            filename_base = "-".join(model_name.lower().replace(" ", "-").split("-")[:2])
+            filename_base = sanitize_filename(model_name)
             os.makedirs("output", exist_ok=True)
             yaml_path = os.path.join("output", f"{filename_base}.yml")
             with open(yaml_path, "w") as f:
                 yaml.safe_dump(dev_copy, f, sort_keys=False)
             file_paths.append(yaml_path)
+    
         if len(file_paths) > 1:
             zip_path = os.path.join("output", "netbox_yamls.zip")
             with ZipFile(zip_path, "w") as zf:
@@ -214,6 +242,11 @@ def upload():
             return send_file(file_paths[0], as_attachment=True, mimetype="text/yaml")
 
     dev = sanitize_yaml(dev)
+    selected = request.form.get('selected_fields')
+    if selected:
+        selected_fields = [f.strip().replace('_', '-') for f in selected.split(',') if f.strip()]
+        keep = set(selected_fields + ['model', 'slug', 'manufacturer', 'part_number'])
+        dev = {k: v for k, v in dev.items() if k in keep}
     prior_comment = dev.get("comments", "")
     gen_tag = f"Generated from {file.filename} using the NetBox YAML Generator"
     dev["comments"] = f"{prior_comment} — {gen_tag}" if prior_comment else gen_tag

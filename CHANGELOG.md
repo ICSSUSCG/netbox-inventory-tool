@@ -1,4 +1,32 @@
 # 📋 CHANGELOG – NetBox YAML Generator
+### ✅ ADDITIONS TO CHANGELOG (2025-05-21)
+
+---
+
+### 🧠 Python Backend (`app_v2.1.py` → `app_v2.3.py`)
+
+#### 🔧 Validation & Compliance:
+- **YAML header parsing fix:** Replaced strict `startswith(...)` validation with safe YAML parsing using `yaml.safe_load()` to prevent false 400 errors from valid spec sheets like `1756-A7.pdf`.
+- **Universal float-to-integer enforcement:** Any `maximum_draw` value in `power-ports` is now auto-converted to `int` using `round(...)`, ensuring NetBox validation compliance.
+- **Filename sanitization fix:** Introduced `sanitize_filename()` to replace invalid characters (like `/`) in `model`-derived filenames, fixing `FileNotFoundError` issues.
+- **Validation resilience:** Improved `sanitize_yaml()` to guarantee all fields are compliant with NetBox device type rules, including field presence, `type` inference, and null-stripping.
+
+---
+
+### 🎨 Frontend (`index.html`)
+
+#### 🔁 UX Logic Improvements:
+- **YAML generation toggle fixed:** The “Generating YAML…” message and dancing hedgehog GIF now appear **only during generation** and hide **automatically upon completion** via `fetch()` + Blob logic.
+- **Form submission logic reworked:** Replaced full-page form post with `JavaScript fetch()` to allow dynamic updates, better error capture, and smoother download experience.
+
+---
+
+### 📘 Documentation (`README.md`)
+
+#### 📦 Environment Setup:
+- **Virtual environment instructions added** under Installation:
+  - Guides users to create and activate a `.venv` for dependency isolation using `python3 -m venv`
+  - Clarifies command differences for Windows (`Scripts\activate`) vs Unix (`source .../bin/activate`)
 
 This document summarizes all changes made to the original NetBox YAML Generator project, including app logic, user interface, deployment tooling, and documentation enhancements.
 

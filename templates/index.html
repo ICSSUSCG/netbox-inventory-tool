@@ -1,27 +1,25 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>{{ title }}</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <title>NetBox YAML Generator</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
   <style>
     body {
-      margin: 0;
       font-family: 'Inter', sans-serif;
+      margin: 0;
       background-color: #0d1b2a;
       color: #e0e0e0;
     }
     header {
-      background-color: #11263c;
+      background: #11263c;
       color: #00d7c3;
       padding: 1rem 2rem;
-      font-size: 1.5rem;
       font-weight: 600;
       display: flex;
       align-items: center;
-      box-shadow: 0 1px 0 #223448;
     }
     header img {
       height: 28px;
@@ -33,53 +31,47 @@
       padding: 2rem;
       background: #11263c;
       border-radius: 8px;
-      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
     }
-    section {
-      margin-bottom: 2rem;
-    }
-    label {
-      display: block;
-      margin-top: 1rem;
-    }
-    input, select, button {
-      display: block;
+    label, select, input, button {
       width: 100%;
-      padding: 0.75rem;
       font-size: 1rem;
       margin-top: 0.5rem;
-      background-color: #0d1b2a;
-      color: #e0e0e0;
+      margin-bottom: 1rem;
+    }
+    input, select {
+      padding: 0.75rem;
       border: 1px solid #223448;
       border-radius: 6px;
+      background: #0d1b2a;
+      color: #e0e0e0;
     }
     button {
-      background-color: #f6b400;
-      color: black;
-      font-weight: 600;
-      cursor: pointer;
+      background: #f6b400;
+      border: none;
+      padding: 0.75rem;
+      color: #000;
+      font-weight: bold;
+      border-radius: 6px;
     }
     button:hover {
-      background-color: #e1a700;
+      background: #e1a700;
     }
     #field-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
       gap: 0.5rem;
-      margin-top: 1rem;
     }
     pre {
-      background-color: #0d1b2a;
+      background: #0d1b2a;
       padding: 1rem;
       border-radius: 6px;
-      overflow-x: auto;
       border: 1px solid #223448;
     }
   </style>
 </head>
 <body>
   <header>
-    <img src="/static/50d8e478-9e78-4588-8a28-27119a3aab98.png" alt="NetBox Logo">
+    <img src="/static/50d8e478-9e78-4588-8a28-27119a3aab98.png" alt="Logo" />
     NetBox YAML Generator
   </header>
 
@@ -114,69 +106,61 @@
     </section>
 
     <section>
-      <form action="/upload" method="post" enctype="multipart/form-data">
+      <form id="generate-form" enctype="multipart/form-data">
         <label for="file">Upload a PDF or YAML (Choose file or drag and drop):</label>
         <input type="file" name="file" required />
+        <input type="hidden" name="selected_fields" id="selected_fields_input" />
         <button type="submit">Generate YAML</button>
       </form>
     </section>
 
-    {% if yaml_output %}
-    <section>
-      <h3>Generated YAML:</h3>
-      <pre>{{ yaml_output }}</pre>
-    </section>
-    {% endif %}
-  
     <div id="hedgehog" style="display:none; text-align:center; margin-top: 2rem;">
       <img src="/static/dancing-hedgehog.gif" alt="Dancing Hedgehog" style="height: 100px;">
       <p>Generating YAML...</p>
     </div>
-
   </main>
 
   <script>
     function toggleAll(checked) {
       document.querySelectorAll('input[name="fields"]').forEach(cb => cb.checked = checked);
     }
+
     function setApiKey() {
-      let apiKey = document.getElementById("api_key").value;
+      const key = document.getElementById("api_key").value;
       fetch("/set_api_key", {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "api_key=" + encodeURIComponent(apiKey)
+        body: "api_key=" + encodeURIComponent(key)
       });
     }
+
     function setModel() {
-      let selectedModel = document.getElementById("model_select").value;
+      const model = document.getElementById("model_select").value;
       fetch("/set_model", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: selectedModel })
+        body: JSON.stringify({ model })
       });
     }
+
     function setFields() {
-      let selectedFields = Array.from(document.querySelectorAll('input[name="fields"]:checked')).map(el => el.value);
+      const fields = Array.from(document.querySelectorAll('input[name="fields"]:checked'))
+                          .map(el => el.value);
       fetch("/set_fields", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fields: selectedFields })
+        body: JSON.stringify({ fields })
       });
     }
+
     function updateKeyCount() {
-      const len = document.getElementById("api_key").value.length;
-      document.getElementById("key_count").innerText = `${len} characters`;
+      const val = document.getElementById("api_key").value.length;
+      document.getElementById("key_count").innerText = `${val} characters`;
     }
+
     function saveKey() {
       const val = document.getElementById("api_key").value;
       sessionStorage.setItem("api_key", val);
-    }
-    
-    const form = document.querySelector("form");
-    if (form) {
-      form.addEventListener("submit", function () {
-        document.getElementById("hedgehog").style.display = "block";
-      });
     }
 
     window.onload = function () {
@@ -185,6 +169,48 @@
         document.getElementById("api_key").value = saved;
         updateKeyCount();
       }
+
+      const form = document.getElementById("generate-form");
+      form.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        document.getElementById("hedgehog").style.display = "block";
+
+        const selected = Array.from(document.querySelectorAll('input[name="fields"]:checked'))
+                              .map(cb => cb.value)
+                              .join(",");
+        document.getElementById("selected_fields_input").value = selected;
+
+        const formData = new FormData(form);
+        try {
+          const response = await fetch("/upload", {
+            method: "POST",
+            body: formData
+          });
+
+          if (!response.ok) {
+            const error = await response.text();
+            alert("Error: " + error);
+            return;
+          }
+
+          const blob = await response.blob();
+          const contentDisposition = response.headers.get("Content-Disposition");
+          const match = /filename="?(.+)"?/.exec(contentDisposition || "");
+          const filename = match ? match[1] : "download.yml";
+
+          const link = document.createElement("a");
+          link.href = URL.createObjectURL(blob);
+          link.download = filename;
+          document.body.appendChild(link);
+          link.click();
+          link.remove();
+
+        } catch (err) {
+          alert("Upload failed.");
+        } finally {
+          document.getElementById("hedgehog").style.display = "none";
+        }
+      });
     };
   </script>
 </body>

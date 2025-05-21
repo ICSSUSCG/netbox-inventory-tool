@@ -27,7 +27,15 @@ git clone https://github.com/your-org/netbox-yaml-generator.git
 cd netbox-yaml-generator
 ```
 
-### 2. Install dependencies
+### 2. (Recommended) Create and activate a virtual environment
+```bash
+python3 -m venv .venv
+source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+```
+
+This ensures your environment is isolated and dependencies won't conflict with system-wide packages.
+
+### 3. Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
@@ -39,16 +47,10 @@ pip install -r requirements.txt
 - `Werkzeug` for secure file handling
 - `openai` for LLM integration
 
-### 3. Run the application
+### 4. Run the application
 ```bash
-python app_v3.1.py
+python app.py
 ```
-
-Or using a versioned file:
-```bash
-python app_v2.1.py
-```
-
 ---
 
 ## 🌐 Usage
@@ -122,13 +124,6 @@ export OPENAI_API_KEY=your-key-here
 │   └── validate_manifest_standalone.py
 ├── requirements.txt
 ```
-
----
-
-## 🗂 Versioning
-
-Versioned app files follow the naming scheme: `app_v2.py`, `app_v2.1.py`, `app_v3.0.py`, etc.  
-Small fixes = patch versions (`v2.01`), large updates = major/minor (`v2.1`, `v3.0`).
 
 ---
 
